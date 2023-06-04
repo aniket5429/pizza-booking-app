@@ -1,0 +1,67 @@
+version: "3.7"
+
+services:
+  # frontend:
+  #   build: .
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - backend
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reasonLabs
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - PORT=3000
+    ports:
+      - 80:3000
+      - 8080:8080
+    command: node build/app.js
+    depends_on:
+      - postgres
+  # doughService:
+  #   restart: always
+  #   command: node build/consumers/doughConsumer.js
+  #   deploy:
+  #     replicas: 2
+  #   depends_on:
+  #    - postgres
+  #    - backend
+  # toppingService:
+  #   restart: always
+  #   command: node build/consumers/toppingConsumer.js
+  #   deploy:
+  #     replicas: 3
+  #   depends_on:
+  #    - postgres
+  #    - backend
+  # bakingService:
+  #   restart: always
+  #   command: node build/consumers/bakePizza.js
+  #   depends_on:
+  #    - postgres
+  #    - backend
+  # servingService:
+  #   restart: always
+  #   command: node build/consumers/servePizza.js
+  #   deploy:
+  #     replicas: 2
+  #   depends_on:
+  #    - postgres
+  #    - backend
+volumes:
+  postgres-data:
